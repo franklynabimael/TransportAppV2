@@ -1,0 +1,72 @@
+﻿@page
+@model TransportApp.Pages.IndexModel
+@using TransportApp.Helpers
+@using TransportApp.Models
+
+@{
+    ViewData["Title"] = "Horario";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2><i class="bi bi-taxi-front-fill"></i> Horario de Taxi</h2>
+                    <p class="mb-0">Actualizado: @DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt")</p>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Viajes.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th><i class="fas fa-clock"></i> Hora</th>
+                                        <th><i class="fas fa-map-marker-alt"></i> Destino</th>
+                                        <th><i class="fas fa-info-circle"></i> Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var viaje in Model.Viajes)
+                                    {
+                                        <tr class="@EstadoViajeHelper.GetRowClass(viaje.Estado)">
+                                            <td class="fw-bold">@viaje.HoraSalida.ToString("hh:mm tt")</td>
+                                            <td>@viaje.Destino</td>
+                                            <td>
+                                                <span class="badge @EstadoViajeHelper.GetBadgeClass(viaje.Estado)">
+                                                    <i class="@EstadoViajeHelper.GetIconClass(viaje.Estado)"></i>
+                                                    @EstadoViajeHelper.GetEstadoTexto(viaje.Estado)
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center p-5">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No hay viajes programados</h4>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <button class="btn btn-outline-primary" onclick="location.reload()">
+                    <i class="fas fa-refresh"></i> Actualizar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // refresca  cada 30 segundos
+    setTimeout(function() {
+        location.reload();
+    }, 30000);
+</script>

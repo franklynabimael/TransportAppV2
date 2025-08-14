@@ -1,0 +1,173 @@
+﻿@page
+@using TransportApp.Helpers
+@using TransportApp.Models
+@model TransportApp.Pages.CreateModel
+@{
+    ViewData["Title"] = "Panel de Control";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3><i class="fas fa-plus-circle"></i> Agregar Nuevo Viaje</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Formulario -->
+                        <div class="col-md-4">
+                            <form method="post" asp-page-handler="Crear">
+                                <div class="mb-3">
+                                    <label for="HoraSalida" class="form-label">
+                                        <i class="fas fa-clock"></i> Hora de Salida
+                                    </label>
+                                    <input type="time" class="form-control" id="HoraSalida"
+                                           asp-for="HoraSalida" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="DestinoSeleccionado" class="form-label">
+                                        <i class="fas fa-map-marker-alt"></i> Destino
+                                    </label>
+                                    <select class="form-select" id="DestinoSeleccionado"
+                                            asp-for="DestinoSeleccionado" required>
+                                        <option value=""> Seleccionar Destino </option>
+                                        @foreach (var destino in Model.DestinosDisponibles)
+                                        {
+                                            <option value="@destino">@destino</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-plus"></i> Agregar Viaje
+                                    </button>
+                                </div>
+                            </form>
+
+                            @if (!string.IsNullOrEmpty(Model.Mensaje))
+                            {
+                                <div class="alert alert-info mt-3" role="alert">
+                                    <i class="fas fa-info-circle"></i> @Model.Mensaje
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.Error))
+                            {
+                                <div class="alert alert-danger mt-3" role="alert">
+                                    <i class="fas fa-exclamation-triangle"></i> @Model.Error
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Lista de viajes del día -->
+                        <div class="col-md-8">
+                            <h5><i class="fas fa-list"></i> Viajes Programados </h5>
+                            @if (Model.ViajesDelDia.Any())
+                            {
+                                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-striped table-sm">
+                                        <thead class="table-dark sticky-top">
+                                            <tr>
+                                                <th>Hora</th>
+                                                <th>Destino</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var viaje in Model.ViajesDelDia.OrderBy(v => v.HoraSalida))
+                                            {
+                                                <tr class="@EstadoViajeHelper.GetRowClass(viaje.Estado)">
+                                                    <td class="fw-bold">@viaje.HoraSalida.ToString("hh:mm tt")</td>
+                                                    <td>@viaje.Destino</td>
+                                                    <td>
+                                                        <span class="badge @EstadoViajeHelper.GetBadgeClass(viaje.Estado)">
+                                                            @EstadoViajeHelper.GetEstadoTexto(viaje.Estado)
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            @if (viaje.Estado != EstadoViaje.FueraDeServicio)
+                                                            {
+                                                                <form method="post" asp-page-handler="FueraDeServicio" class="d-inline">
+                                                                    <input type="hidden" name="idViaje" value="@viaje.Id" />
+                                                                    <button type="submit" class="btn btn-outline-warning btn-sm"
+                                                                            title="Poner Fuera de Servicio"
+                                                                            onclick="return confirm('¿Poner este viaje fuera de servicio?')">
+                                                                        <i class="fas fa-pause"></i>
+                                                                    </button>
+                                                                </form>
+                                                            }
+                                                            else
+                                                            {
+                                                                <form method="post" asp-page-handler="Reactivar" class="d-inline">
+                                                                    <input type="hidden" name="idViaje" value="@viaje.Id" />
+                                                                    <button type="submit" class="btn btn-outline-success btn-sm"
+                                                                            title="Reactivar Viaje">
+                                                                        <i class="fas fa-play"></i>
+                                                                    </button>
+                                                                </form>
+                                                            }
+                                                            <form method="post" asp-page-handler="Eliminar" class="d-inline">
+                                                                <input type="hidden" name="idViaje" value="@viaje.Id" />
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                                        onclick="return confirm('¿Eliminar este viaje permanentemente?')"
+                                                                        title="Eliminar">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center p-4 border rounded">
+                                    <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted">No hay viajes programados</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <div class="btn-group">
+                            <a href=/ class="btn btn-outline-primary">
+                                <i class="fas fa-eye"></i> Vista Pública
+                            </a>
+                            <button class="btn btn-outline-secondary" onclick="location.reload()">
+                                <i class="fas fa-refresh"></i> Actualizar
+                            </button>
+                            <form method="post" asp-page-handler="ReiniciarEstados" class="d-inline">
+                                <button type="submit" class="btn btn-outline-info"
+                                        onclick="return confirm('¿Reiniciar todos los estados? Esto pondrá todos los viajes en espera.')">
+                                    <i class="fas fa-redo"></i> Reiniciar Estados
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="mt-3">
+                           @*  <small class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Estados automáticos:</strong><br>
+                                • <span class="badge bg-info">En Espera</span>: Más de 20min antes de la salida<br>
+                                • <span class="badge bg-success">Abordaje</span>: 20min antes hasta la hora de salida<br>
+                                • <span class="badge bg-warning text-dark">En Tránsito</span>: Desde la hora de salida por 10min<br>
+                                • <span class="badge bg-secondary">Finalizado</span>: Se oculta automáticamente<br>
+                                <br><strong>Reinicio automático:</strong> Cada día a las 12:00 AM todos los horarios vuelven a aparecer
+                            </small> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
