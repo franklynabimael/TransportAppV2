@@ -7,8 +7,8 @@ namespace TransportApp.Services
     public class ViajeService
     {
         private readonly ApplicationDbContext _context;
-        private readonly int _tiempoTransitoMinutos = 1; // Configurable - duración del tránsito
-        private readonly int _tiempoAnticipacionAbordaje = 1; // Configurable - minutos antes para abordaje
+        private readonly int _tiempoTransitoMinutos = 5; // Configurable - duración del tránsito
+        private readonly int _tiempoAnticipacionAbordaje = 10; // Configurable - minutos antes para abordaje
 
         public ViajeService(ApplicationDbContext context)
         {
