@@ -12,8 +12,8 @@ using TransportApp.Data;
 namespace TransportApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250813040954_CambiarDateOnlyDelete")]
-    partial class CambiarDateOnlyDelete
+    [Migration("20250909015042_InitialCreateSqlServer")]
+    partial class InitialCreateSqlServer
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,6 +46,9 @@ namespace TransportApp.Migrations
 
                     b.Property<bool>("Oculto")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime>("UltimaActualizacion")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
